@@ -17,6 +17,8 @@ enum ColorEditMode {
 
 open class JJRichTextEditor: UIView {
 
+    open var maxImageSize: Int = 1000000;
+    
     //Editor
     public var editorView: RichEditorView! {
         didSet {
@@ -204,17 +206,23 @@ extension JJRichTextEditor: UIImagePickerControllerDelegate, UINavigationControl
     public func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         imagePicker.dismiss(animated: true) {
             var imageData:NSData!
+            
             if let image = info[UIImagePickerControllerEditedImage] as? UIImage {
-                imageData = UIImagePNGRepresentation(image)! as NSData
+                imageData = image.compressSize(maxSize: self.maxImageSize)!
             }
             else if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
-                imageData = UIImagePNGRepresentation(image)! as NSData
+                imageData = image.compressSize(maxSize: self.maxImageSize)!
             } else{
                 print("Something went wrong")
             }
-
-            let strBase64:String = imageData.base64EncodedString(options: .lineLength64Characters)
-            self.toolbar.editor?.insertImage("data:image/png;base64, " + strBase64, alt: "Gravatar")
+            /* Check if the image is still too big after compression */
+            if(imageData.length > self.maxImageSize) {
+                let alert = SCLAlertView(appearance: SCLAlertView.SCLAppearance(showCloseButton: true))
+                alert.showError("Error", subTitle: "Image is too large, please use a smaller sized image")
+            } else {
+                let strBase64:String = imageData.base64EncodedString(options: .lineLength64Characters)
+                self.toolbar.editor?.insertImage("data:image/png;base64, " + strBase64, alt: "Gravatar")
+            }
             
         }
     }
@@ -223,7 +231,6 @@ extension JJRichTextEditor: UIImagePickerControllerDelegate, UINavigationControl
         imagePicker.dismiss(animated: true, completion: nil)
     }
 }
-
 
 //helper function
 extension JJRichTextEditor {
@@ -236,6 +243,34 @@ extension JJRichTextEditor {
             }
         }
         return nil
+    }
+}
+
+extension UIImage {
+    enum JPEGQuality: CGFloat {
+        case lowest  = 0
+        case low     = 0.25
+        case medium  = 0.5
+        case high    = 0.75
+        case highest = 1
+        
+        static let allQuality = [highest, high, medium, low, lowest]
+    }
+    
+    /* Returns the data for the specified image in PNG format */
+    var png: Data? { return UIImagePNGRepresentation(self) }
+    
+    /* Returns the data for the specified image after compressing into a size under the specified maximum size */
+    func compressSize(maxSize: Int) -> NSData? {
+        let originalImageData = UIImageJPEGRepresentation(self, 1)! as NSData
+        
+        for quality in JPEGQuality.allQuality {
+            let imageData = UIImageJPEGRepresentation(self, quality.rawValue)! as NSData
+            if(imageData.length < maxSize) {
+                return imageData
+            }
+        }
+        return originalImageData
     }
 }
  
