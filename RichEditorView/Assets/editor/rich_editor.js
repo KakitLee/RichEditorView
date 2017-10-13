@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- "use strict";
+"use strict";
 
 var RE = {};
 
@@ -23,10 +23,47 @@ window.onload = function() {
 
 RE.editor = document.getElementById('editor');
 
+/* List of options currently in RichEditorToolbar listed in the format of "javascript command identifier" : "option name listed in RichEditorOptionItem" */
+RE.toolbarOptions = {
+    "undo": "Undo",
+    "redo": "Redo",
+    "bold": "Bold",
+    "italic": "Italic",
+    "subscript": "Sub",
+    "superscript": "Super",
+    "strikeThrough": "Strike",
+    "underline": "Underline",
+    "foreColor": "Color",
+    "hiliteColor": "BG Color",
+    "header1": "H1",
+    "header2": "H2",
+    "header3": "H3",
+    "header4": "H4",
+    "header5": "H5",
+    "header6": "H6",
+    "indent": "Indent",
+    "outdent": "Outdent",
+    "insertOrderedList": "Ordered List",
+    "insertUnorderedList": "Unordered List",
+    "justifyLeft": "Left",
+    "justifyCenter": "Center",
+    "justifyRight": "Right"
+}
+
+/* Index of header number from RE.toolbarOptions (e.g. "header1", 1 is index number 6) */
+RE.headerNumberIndex = 6;
+
 // Not universally supported, but seems to work in iOS 7 and 8
 document.addEventListener("selectionchange", function() {
-    RE.backuprange();
-});
+                          RE.getCurrentStyle();
+                          RE.backuprange();
+                          });
+
+document.addEventListener("keydown", function() {
+                          RE.getCurrentStyle();
+                          RE.backuprange();
+                          });
+
 
 //looks specifically for a Range selection and not a Caret selection
 RE.rangeSelectionExists = function() {
@@ -48,19 +85,21 @@ RE.rangeOrCaretSelectionExists = function() {
 };
 
 RE.editor.addEventListener("input", function() {
-    RE.updatePlaceholder();
-    RE.backuprange();
-    RE.callback("input");
-});
+                           //RE.updatePlaceholder();
+                           RE.backuprange();
+                           RE.callback("input");
+                           });
 
 RE.editor.addEventListener("focus", function() {
-    RE.backuprange();
-    RE.callback("focus");
-});
+                           RE.editor.classList.remove("placeholder");
+                           RE.backuprange();
+                           RE.callback("focus");
+                           });
 
 RE.editor.addEventListener("blur", function() {
-    RE.callback("blur");
-});
+                           RE.updatePlaceholder();
+                           RE.callback("blur");
+                           });
 
 RE.customAction = function(action) {
     RE.callback("action/" + action);
@@ -75,10 +114,10 @@ RE.runCallbackQueue = function() {
     if (RE.callbackQueue.length === 0) {
         return;
     }
-
+    
     setTimeout(function() {
-        window.location.href = "re-callback://";
-    }, 0);
+               window.location.href = "re-callback://";
+               }, 0);
 };
 
 RE.getCommandQueue = function() {
@@ -96,13 +135,31 @@ RE.setHtml = function(contents) {
     var tempWrapper = document.createElement('div');
     tempWrapper.innerHTML = contents;
     var images = tempWrapper.querySelectorAll("img");
-
+    
     for (var i = 0; i < images.length; i++) {
         images[i].onload = RE.updateHeight;
     }
-
+    
     RE.editor.innerHTML = tempWrapper.innerHTML;
-    RE.updatePlaceholder();
+    //RE.updatePlaceholder();
+};
+
+/* Find out current applied styles and passes them to the rich editor view to update the toolbar */
+RE.getCurrentStyle = function() {
+    var appliedStyles = "";
+    for(var command in RE.toolbarOptions) {
+        if(document.queryCommandState(command)) {
+            appliedStyles += RE.toolbarOptions[command] + ","
+        }
+        
+        if(command.includes("header")) {
+            var formatBlock = document.queryCommandValue('formatBlock');
+            if(formatBlock.length > 1 && formatBlock[1] == command[6]) {
+                appliedStyles += RE.toolbarOptions[command] + ",";
+            }
+        }
+    }
+    RE.customAction(appliedStyles);
 };
 
 RE.getHtml = function() {
@@ -122,7 +179,7 @@ RE.setPlaceholderText = function(text) {
 };
 
 RE.updatePlaceholder = function() {
-    if (RE.editor.textContent.length > 0) {
+    if (RE.editor.innerHTML.indexOf('img') !== -1 || (RE.editor.textContent.length > 0 && RE.editor.innerHTML.length > 0)) {
         RE.editor.classList.remove("placeholder");
     } else {
         RE.editor.classList.add("placeholder");
@@ -131,6 +188,7 @@ RE.updatePlaceholder = function() {
 
 RE.removeFormat = function() {
     document.execCommand('removeFormat', false, null);
+    document.execCommand('unlink', false, null);
 };
 
 RE.setFontSize = function(size) {
@@ -154,7 +212,7 @@ RE.redo = function() {
 };
 
 RE.setBold = function() {
-    document.execCommand('strong', false, null);
+    document.execCommand('bold', false, null);
 };
 
 RE.setItalic = function() {
@@ -212,14 +270,17 @@ RE.setUnorderedList = function() {
 };
 
 RE.setJustifyLeft = function() {
+    RE.getCurrentStyle();
     document.execCommand('justifyLeft', false, null);
 };
 
 RE.setJustifyCenter = function() {
+    RE.getCurrentStyle();
     document.execCommand('justifyCenter', false, null);
 };
 
 RE.setJustifyRight = function() {
+    RE.getCurrentStyle();
     document.execCommand('justifyRight', false, null);
 };
 
@@ -236,7 +297,7 @@ RE.insertImage = function(url, alt) {
     img.setAttribute("src", url);
     img.setAttribute("alt", alt);
     img.onload = RE.updateHeight;
-
+    
     RE.insertHTML(img.outerHTML);
     RE.callback("input");
 };
@@ -255,16 +316,18 @@ RE.insertLink = function(url, title) {
     var sel = document.getSelection();
     if (sel.toString().length !== 0) {
         if (sel.rangeCount) {
-
+            
             var el = document.createElement("a");
             el.setAttribute("href", url);
-            el.setAttribute("title", title);
-
+            // el.setAttribute("title", title);
+            
             var range = sel.getRangeAt(0).cloneRange();
             range.surroundContents(el);
             sel.removeAllRanges();
             sel.addRange(range);
         }
+    } else {
+        document.execCommand("insertHTML", false, "<a href='" + url + "'>" + title + "</a>");
     }
     RE.callback("input");
 };
@@ -334,8 +397,8 @@ RE.blurFocus = function() {
 };
 
 /**
-Recursively search element ancestors to find a element nodeName e.g. A
-**/
+ Recursively search element ancestors to find a element nodeName e.g. A
+ **/
 var _findNodeByNameInContainer = function(element, nodeName, rootElementId) {
     if (element.nodeName == nodeName) {
         return element;
@@ -353,7 +416,7 @@ var isAnchorNode = function(node) {
 
 RE.getAnchorTagsInNode = function(node) {
     var links = [];
-
+    
     while (node.nextSibling !== null && node.nextSibling !== undefined) {
         node = node.nextSibling;
         if (isAnchorNode(node)) {
@@ -378,7 +441,7 @@ RE.getSelectedHref = function() {
     if (!RE.rangeOrCaretSelectionExists()) {
         return null;
     }
-
+    
     var tags = RE.getAnchorTagsInNode(sel.anchorNode);
     //if more than one link is there, return null
     if (tags.length > 1) {
@@ -389,7 +452,7 @@ RE.getSelectedHref = function() {
         var node = _findNodeByNameInContainer(sel.anchorNode.parentElement, 'A', 'editor');
         href = node.href;
     }
-
+    
     return href ? href : null;
 };
 
@@ -414,6 +477,6 @@ RE.getRelativeCaretYPosition = function() {
             }
         }
     }
-
+    
     return y;
 };

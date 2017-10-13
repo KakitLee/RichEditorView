@@ -10,6 +10,8 @@
 		04AB85C71F53E33E00C7F869 /* JJRichTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04AB85C61F53E33E00C7F869 /* JJRichTextEditor.swift */; };
 		39FC98FB1DC788A1008FE5DD /* String+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39FC98F91DC788A1008FE5DD /* String+Extensions.swift */; };
 		39FC98FC1DC788A1008FE5DD /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39FC98FA1DC788A1008FE5DD /* UIColor+Extensions.swift */; };
+		8403200A1F8BB15A00C3360D /* ZSSkeyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = 840320081F8BB15A00C3360D /* ZSSkeyboard.png */; };
+		8403200B1F8BB15A00C3360D /* ZSSkeyboard@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 840320091F8BB15A00C3360D /* ZSSkeyboard@2x.png */; };
 		947A71A11C0F9DED00BDF9FC /* UIView+Responder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 947A71A01C0F9DED00BDF9FC /* UIView+Responder.swift */; };
 		FBA6AAFF1AD3EC9F00721644 /* RichEditorView.h in Headers */ = {isa = PBXBuildFile; fileRef = FBA6AAFE1AD3EC9F00721644 /* RichEditorView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FBA6AB051AD3EC9F00721644 /* RichEditorView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBA6AAF91AD3EC9F00721644 /* RichEditorView.framework */; };
@@ -88,6 +90,8 @@
 		04AB85C61F53E33E00C7F869 /* JJRichTextEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = JJRichTextEditor.swift; path = Classes/JJRichTextEditor.swift; sourceTree = "<group>"; };
 		39FC98F91DC788A1008FE5DD /* String+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "String+Extensions.swift"; path = "Classes/String+Extensions.swift"; sourceTree = "<group>"; };
 		39FC98FA1DC788A1008FE5DD /* UIColor+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "UIColor+Extensions.swift"; path = "Classes/UIColor+Extensions.swift"; sourceTree = "<group>"; };
+		840320081F8BB15A00C3360D /* ZSSkeyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ZSSkeyboard.png; sourceTree = "<group>"; };
+		840320091F8BB15A00C3360D /* ZSSkeyboard@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ZSSkeyboard@2x.png"; sourceTree = "<group>"; };
 		947A71A01C0F9DED00BDF9FC /* UIView+Responder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "UIView+Responder.swift"; path = "Classes/UIView+Responder.swift"; sourceTree = "<group>"; };
 		FBA6AAF91AD3EC9F00721644 /* RichEditorView.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RichEditorView.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FBA6AAFD1AD3EC9F00721644 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -274,6 +278,8 @@
 		FBA6AB1D1AD3ED2D00721644 /* icons */ = {
 			isa = PBXGroup;
 			children = (
+				840320081F8BB15A00C3360D /* ZSSkeyboard.png */,
+				840320091F8BB15A00C3360D /* ZSSkeyboard@2x.png */,
 				FBA6AB1E1AD3ED2D00721644 /* bg_color.png */,
 				FBA6AB1F1AD3ED2D00721644 /* bg_color@2x.png */,
 				FBA6AB201AD3ED2D00721644 /* bold.png */,
@@ -451,8 +457,10 @@
 				FBA6AB6A1AD3ED2D00721644 /* insert_link@2x.png in Resources */,
 				FBA6AB761AD3ED2D00721644 /* redo@2x.png in Resources */,
 				FBA6AB6D1AD3ED2D00721644 /* justify_center.png in Resources */,
+				8403200B1F8BB15A00C3360D /* ZSSkeyboard@2x.png in Resources */,
 				FBA6AB701AD3ED2D00721644 /* justify_left@2x.png in Resources */,
 				FBA6AB611AD3ED2D00721644 /* h5.png in Resources */,
+				8403200A1F8BB15A00C3360D /* ZSSkeyboard.png in Resources */,
 				FBA6AB7E1AD3ED2D00721644 /* text_color@2x.png in Resources */,
 				FBA6AB811AD3ED2D00721644 /* undo.png in Resources */,
 				FBA6AB511AD3ED2D00721644 /* rich_editor.js in Resources */,
