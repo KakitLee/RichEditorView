@@ -16,7 +16,7 @@ enum ColorEditMode {
 }
 
 open class JJRichTextEditor: UIView {
-
+    
     open var maxImageSize: Int = 1000000;
     
     //Editor
@@ -36,10 +36,19 @@ open class JJRichTextEditor: UIView {
             colorPickerView.delegate = self
             self.addSubview(colorPickerView)
             
+            let bundle = Bundle(for: RichEditorToolbar.self)
+            let keyboardOptionImage = UIImage(named: "ZSSkeyboard", in: bundle, compatibleWith: nil)
+            let hideKeyboardOption = RichEditorOptionItem(image: keyboardOptionImage, title: "Hide Keyboard") { toolbar in
+                self.editorView.endEditing(true)
+            }
+            
+            var options: [RichEditorOption] = RichEditorDefaultOption.swarmToolbar
+            options.insert(hideKeyboardOption, at: 0)
+            toolbar.options = options
         }
     }
     public var htmlTextView: UITextView!
-    public var doubleRows: Bool = false {
+    public var doubleRows: Bool = true {
         willSet {
             toolbar.doubleRows = newValue
             if(newValue) {
@@ -57,7 +66,7 @@ open class JJRichTextEditor: UIView {
                     colorPickerView.backgroundColor = UIColor(red: CGFloat(244) / CGFloat(255), green: CGFloat(244) / CGFloat(255), blue: CGFloat(244) / CGFloat(255), alpha: 1)
                     return colorPickerView
                 }()
-
+                
             }else{
                 toolbar.options = RichEditorDefaultOption.all
             }
@@ -87,9 +96,10 @@ open class JJRichTextEditor: UIView {
     public lazy var toolbar: RichEditorToolbar = {
         let toolbar = RichEditorToolbar(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.frame.height))
         toolbar.options = RichEditorDefaultOption.all
+        //toolbar.options = [RichEditorDefaultOption.link, RichEditorDefaultOption.image, RichEditorDefaultOption.clear, RichEditorDefaultOption.bold, RichEditorDefaultOption.italic]
         return toolbar
     }()
-
+    
     var colorEditMode: ColorEditMode!
     
     //Image Picker
@@ -133,6 +143,13 @@ extension JJRichTextEditor: RichEditorDelegate {
         }
     }
     
+    /* Update toolbar every time an option is clicked */
+    public func richEditor(_ editor: RichEditorView, handle action: String) {
+        let appliedOptions = action.components(separatedBy: ",")
+        print(appliedOptions)
+        toolbar.updateToolbar(appliedStyles: appliedOptions)
+    }
+    
 }
 
 extension JJRichTextEditor: RichEditorToolbarDelegate {
@@ -156,12 +173,27 @@ extension JJRichTextEditor: RichEditorToolbarDelegate {
         // Can only add links to selected text, so make sure there is a range selection first
         if toolbar.editor?.hasRangeSelection == true {
             let alert = SCLAlertView(appearance: SCLAlertView.SCLAppearance(showCloseButton: false))
-            let txt = alert.addTextField("http://")
-            alert.addButton("OK") {
-                toolbar.editor?.insertLink(txt.text!, title: "URL")
+            let url = alert.addTextField("http://")
+            alert.addButton("Create Link") {
+                toolbar.editor?.insertLink(url.text!, title: "")
+            }
+            alert.addButton("Cancel") {
+                alert.hideView()
             }
             editorView.endEditing(true)
-            alert.showEdit("Add Link", subTitle: "Please enter the link in the following textbox")
+            alert.showEdit("Add Link", subTitle: "Please enter the link information")
+        } else {
+            let alert = SCLAlertView(appearance: SCLAlertView.SCLAppearance(showCloseButton: false))
+            let url = alert.addTextField("http://")
+            let txt = alert.addTextField("Display Text")
+            alert.addButton("Create Link") {
+                toolbar.editor?.insertLink(url.text!, title: txt.text!)
+            }
+            alert.addButton("Cancel") {
+                alert.hideView()
+            }
+            editorView.endEditing(true)
+            alert.showEdit("Add Link", subTitle: "Please enter the link information")
         }
     }
 }
@@ -273,4 +305,4 @@ extension UIImage {
         return originalImageData
     }
 }
- 
+

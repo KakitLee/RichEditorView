@@ -498,7 +498,11 @@ open class RichEditorView: UIView, UIScrollViewDelegate, UIWebViewDelegate, UIGe
                 isEditorLoaded = true
                 html = contentHTML
                 isContentEditable = editingEnabledVar
-                placeholder = placeholderText
+                
+                /* Only sets placeholder when there is no content yet */
+                if(html == "") {
+                    placeholder = placeholderText
+                }
                 lineHeight = innerLineHeight
                 delegate?.richEditorDidLoad?(self)
             }
