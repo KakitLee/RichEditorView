@@ -100,7 +100,8 @@ public enum RichEditorDefaultOption: RichEditorOption {
     public static let swarmToolbar: [RichEditorDefaultOption] = [
         .clear,
         .bold, .italic,
-        .underline, .strike, .subscript, .superscript,
+        .underline, .strike,
+        //.subscript, .superscript,
         //.header(1),
         .indent, outdent, orderedList, unorderedList,
         .textColor, .textBackgroundColor,

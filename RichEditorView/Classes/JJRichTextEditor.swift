@@ -173,7 +173,8 @@ extension JJRichTextEditor: RichEditorToolbarDelegate {
         // Can only add links to selected text, so make sure there is a range selection first
         if toolbar.editor?.hasRangeSelection == true {
             let alert = SCLAlertView(appearance: SCLAlertView.SCLAppearance(showCloseButton: false))
-            let url = alert.addTextField("http://")
+            let url = alert.addTextField("")
+            url.text = "https://"
             alert.addButton("Create Link") {
                 toolbar.editor?.insertLink(url.text!, title: "")
             }
@@ -184,7 +185,8 @@ extension JJRichTextEditor: RichEditorToolbarDelegate {
             alert.showEdit("Add Link", subTitle: "Please enter the link information")
         } else {
             let alert = SCLAlertView(appearance: SCLAlertView.SCLAppearance(showCloseButton: false))
-            let url = alert.addTextField("http://")
+            let url = alert.addTextField("")
+            url.text = "https://"
             let txt = alert.addTextField("Display Text")
             alert.addButton("Create Link") {
                 toolbar.editor?.insertLink(url.text!, title: txt.text!)
