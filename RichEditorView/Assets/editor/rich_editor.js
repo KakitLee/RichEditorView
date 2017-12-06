@@ -59,11 +59,25 @@ document.addEventListener("selectionchange", function() {
                           RE.backuprange();
                           });
 
-document.addEventListener("keydown", function() {
+window.addEventListener("keydown", function(key) {
                           RE.getCurrentStyle();
                           RE.backuprange();
-                          });
 
+                        /* Uses <p> tags on line breaks
+                         (except when selected text contains a list) */
+                        if(key.keyCode == '13' &&
+                             !document.queryCommandState("insertOrderedList") &&
+                             !document.queryCommandState("insertUnorderedList")) {
+                        
+                            key.preventDefault();
+                            document.execCommand('formatBlock', false, 'p');
+                            RE.insertHTML("<br>");
+                        } 
+});
+
+RE.getDocument = function() {
+    return "Hi" + document.getSelection();
+}
 
 //looks specifically for a Range selection and not a Caret selection
 RE.rangeSelectionExists = function() {
@@ -84,10 +98,9 @@ RE.rangeOrCaretSelectionExists = function() {
     return false;
 };
 
-RE.editor.addEventListener("input", function() {
+RE.editor.addEventListener("input", function(e) {
                            //RE.updatePlaceholder();
                            RE.backuprange();
-                           RE.callback("input");
                            });
 
 RE.editor.addEventListener("focus", function() {
@@ -132,7 +145,7 @@ RE.callback = function(method) {
 };
 
 RE.setHtml = function(contents) {
-    var tempWrapper = document.createElement('div');
+    var tempWrapper = document.createElement("p");
     tempWrapper.innerHTML = contents;
     var images = tempWrapper.querySelectorAll("img");
     
@@ -261,11 +274,19 @@ RE.setOutdent = function() {
     document.execCommand('outdent', false, null);
 };
 
+/* Reset block format to <p> when list is toggled off */
 RE.setOrderedList = function() {
+    if(document.queryCommandState("insertOrderedList")) {
+        RE.restorerange();
+        document.execCommand('formatBlock', false, 'p');
+    }
     document.execCommand('insertOrderedList', false, null);
 };
 
 RE.setUnorderedList = function() {
+    if(document.queryCommandState("insertUnorderedList")) {
+        document.execCommand('formatBlock', false, 'p');
+    }
     document.execCommand('insertUnorderedList', false, null);
 };
 
