@@ -16,7 +16,7 @@ enum ColorEditMode {
 }
 
 open class JJRichTextEditor: UIView {
-
+    
     open var maxImageSize: Int = 1000000;
     
     //Editor
@@ -31,38 +31,26 @@ open class JJRichTextEditor: UIView {
             toolbar.editor = editorView
             self.addSubview(toolbar)
             
-            //Init Color Picker
-            colorPickerView.layoutDelegate = self
-            colorPickerView.delegate = self
-            self.addSubview(colorPickerView)
+            //Init Color Pickers
+            textColorPickerView.layoutDelegate = self
+            textColorPickerView.delegate = self
+            backgroundColorPickerView.layoutDelegate = self
+            backgroundColorPickerView.delegate = self
+            self.addSubview(textColorPickerView)
+            self.addSubview(backgroundColorPickerView)
             
+            let bundle = Bundle(for: RichEditorToolbar.self)
+            let keyboardOptionImage = UIImage(named: "ZSSkeyboard", in: bundle, compatibleWith: nil)
+            let hideKeyboardOption = RichEditorOptionItem(image: keyboardOptionImage, title: "Hide Keyboard") { toolbar in
+                self.editorView.endEditing(true)
+            }
+            
+            var options: [RichEditorOption] = RichEditorDefaultOption.swarmToolbar
+            options.insert(hideKeyboardOption, at: 0)
+            toolbar.options = options
         }
     }
     public var htmlTextView: UITextView!
-    public var doubleRows: Bool = false {
-        willSet {
-            toolbar.doubleRows = newValue
-            if(newValue) {
-                toolbar.options = RichEditorDefaultOption.firstRow
-                toolbar.secondaryOptions = RichEditorDefaultOption.secondRow
-                colorDotWidth = self.frame.height / 2 - 20
-                colorPickerView = {
-                    let colorPickerView = ColorPickerView(frame: CGRect(x:  0, y: -self.frame.height, width: self.bounds.width, height: self.frame.height))
-                    colorPickerView.selectionStyle = .none
-                    colorPickerView.layer.shadowColor = UIColor.clear.cgColor
-                    colorPickerView.layer.shadowOffset = CGSize.zero
-                    colorPickerView.layer.shadowOpacity = 0.7
-                    colorPickerView.layer.shadowRadius = 5
-                    colorPickerView.layer.cornerRadius = 5
-                    colorPickerView.backgroundColor = UIColor(red: CGFloat(244) / CGFloat(255), green: CGFloat(244) / CGFloat(255), blue: CGFloat(244) / CGFloat(255), alpha: 1)
-                    return colorPickerView
-                }()
-
-            }else{
-                toolbar.options = RichEditorDefaultOption.all
-            }
-        }
-    }
     
     //Color Picker
     lazy var colorDotWidth:CGFloat = {
@@ -72,27 +60,32 @@ open class JJRichTextEditor: UIView {
         return 5
     }()
     
-    lazy var colorPickerView: ColorPickerView = {
-        let colorPickerView = ColorPickerView(frame: CGRect(x:  0, y: -self.frame.height, width: self.bounds.width, height: self.frame.height))
-        colorPickerView.selectionStyle = .none
-        colorPickerView.layer.shadowColor = UIColor.clear.cgColor
-        colorPickerView.layer.shadowOffset = CGSize.zero
-        colorPickerView.layer.shadowOpacity = 0.7
-        colorPickerView.layer.shadowRadius = 5
-        colorPickerView.layer.cornerRadius = 5
-        colorPickerView.backgroundColor = UIColor(red: CGFloat(244) / CGFloat(255), green: CGFloat(244) / CGFloat(255), blue: CGFloat(244) / CGFloat(255), alpha: 1)
-        return colorPickerView
+    lazy var textColorPickerView: ColorPickerView = {
+        let textColorPickerView = ColorPickerView(frame: CGRect(x:  0, y: -self.frame.height, width: self.bounds.width, height: self.frame.height))
+        textColorPickerView.selectionStyle = .check
+        textColorPickerView.isSelectedColorTappable = true
+        return textColorPickerView
+    }()
+    
+    lazy var backgroundColorPickerView: ColorPickerView = {
+        let backgroundColorPickerView = ColorPickerView(frame: CGRect(x:  0, y: -self.frame.height, width: self.bounds.width, height: self.frame.height))
+        backgroundColorPickerView.selectionStyle = .check
+        backgroundColorPickerView.isSelectedColorTappable = true
+        return backgroundColorPickerView
     }()
     
     public lazy var toolbar: RichEditorToolbar = {
         let toolbar = RichEditorToolbar(frame: CGRect(x: 0, y: 0, width: self.bounds.width, height: self.frame.height))
-        toolbar.options = RichEditorDefaultOption.all
+        toolbar.options = RichEditorDefaultOption.swarmToolbar
         return toolbar
     }()
-
-    var colorEditMode: ColorEditMode!
     
-    //Image Picker
+    /* Color picker helper variables  */
+    var colorEditMode: ColorEditMode!
+    var textColorPickerHidden: Bool = true
+    var backgroundColorPickerHidden: Bool = true
+    
+    /* Image Picker */
     let imagePicker = UIImagePickerController()
     
     
@@ -109,15 +102,28 @@ open class JJRichTextEditor: UIView {
     
     func dismissColorPicker() {
         UIView.animate(withDuration: 0.3) {
-            self.toolbar.frame.origin.y -= self.frame.height
-            self.colorPickerView.frame.origin.y -= self.frame.height
+            if(self.colorEditMode == .text && !self.textColorPickerHidden) {
+                self.toolbar.frame.origin.y -= self.frame.height
+                self.textColorPickerView.frame.origin.y -= self.frame.height
+                self.textColorPickerHidden = true
+            } else if(self.colorEditMode == .background && !self.backgroundColorPickerHidden){
+                self.toolbar.frame.origin.y -= self.frame.height
+                self.backgroundColorPickerView.frame.origin.y -= self.frame.height
+                self.backgroundColorPickerHidden = true
+            }
         }
     }
     
     func showColorPicker() {
         UIView.animate(withDuration: 0.3) {
             self.toolbar.frame.origin.y += self.frame.height
-            self.colorPickerView.frame.origin.y += self.frame.height
+            if(self.colorEditMode == .text) {
+                self.textColorPickerView.frame.origin.y += self.frame.height
+                self.textColorPickerHidden = false
+            }else if(self.colorEditMode == .background){
+                self.backgroundColorPickerView.frame.origin.y += self.frame.height
+                self.backgroundColorPickerHidden = false
+            }
         }
     }
     
@@ -131,6 +137,13 @@ extension JJRichTextEditor: RichEditorDelegate {
         } else {
             htmlTextView?.text = content
         }
+    }
+    
+    /* Update toolbar every time an option is clicked */
+    public func richEditor(_ editor: RichEditorView, handle action: String) {
+        let appliedOptions = action.components(separatedBy: ",")
+        //print(appliedOptions)
+        toolbar.updateToolbar(appliedStyles: appliedOptions)
     }
     
 }
@@ -156,12 +169,29 @@ extension JJRichTextEditor: RichEditorToolbarDelegate {
         // Can only add links to selected text, so make sure there is a range selection first
         if toolbar.editor?.hasRangeSelection == true {
             let alert = SCLAlertView(appearance: SCLAlertView.SCLAppearance(showCloseButton: false))
-            let txt = alert.addTextField("http://")
-            alert.addButton("OK") {
-                toolbar.editor?.insertLink(txt.text!, title: "URL")
+            let url = alert.addTextField("")
+            url.text = "https://"
+            alert.addButton("Create Link") {
+                toolbar.editor?.insertLink(url.text!, title: "")
+            }
+            alert.addButton("Cancel") {
+                alert.hideView()
             }
             editorView.endEditing(true)
-            alert.showEdit("Add Link", subTitle: "Please enter the link in the following textbox")
+            alert.showEdit("Add Link", subTitle: "Please enter the link information")
+        } else {
+            let alert = SCLAlertView(appearance: SCLAlertView.SCLAppearance(showCloseButton: false))
+            let url = alert.addTextField("")
+            url.text = "https://"
+            let txt = alert.addTextField("Display Text")
+            alert.addButton("Create Link") {
+                toolbar.editor?.insertLink(url.text!, title: txt.text!)
+            }
+            alert.addButton("Cancel") {
+                alert.hideView()
+            }
+            editorView.endEditing(true)
+            alert.showEdit("Add Link", subTitle: "Please enter the link information")
         }
     }
 }
@@ -170,14 +200,23 @@ extension JJRichTextEditor: RichEditorToolbarDelegate {
 extension JJRichTextEditor: ColorPickerViewDelegate {
     
     public func colorPickerView(_ colorPickerView: ColorPickerView, didSelectItemAt indexPath: IndexPath) {
-        // A color has been selected
-        dismissColorPicker()
         let color = colorPickerView.colors[indexPath.row]
         if(colorEditMode == .text) {
             toolbar.editor?.setTextColor(color)
         }else if(colorEditMode == .background){
             toolbar.editor?.setTextBackgroundColor(color)
         }
+        dismissColorPicker()
+    }
+    
+    // This is an optional method
+    public func colorPickerView(_ colorPickerView: ColorPickerView, didDeselectItemAt indexPath: IndexPath) {
+        if(colorEditMode == .text) {
+            toolbar.editor?.setTextColor(UIColor.black)
+        }else if(colorEditMode == .background){
+            toolbar.editor?.setTextBackgroundColor(UIColor.white)
+        }
+        dismissColorPicker()
     }
     
 }
@@ -273,4 +312,4 @@ extension UIImage {
         return originalImageData
     }
 }
- 
+
