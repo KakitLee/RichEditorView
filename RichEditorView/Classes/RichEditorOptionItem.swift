@@ -105,7 +105,7 @@ public enum RichEditorDefaultOption: RichEditorOption {
         //.header(1),
         .indent, outdent, orderedList, unorderedList,
         .textColor, .textBackgroundColor,
-        .image, .link,
+        .image, .link
         //.alignLeft, .alignCenter, .alignRight
     ]
     
