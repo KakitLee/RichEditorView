@@ -51,13 +51,13 @@ open class RichBarButtonItem: UIBarButtonItem {
     /* Change color of option when pressed (excluding options listed in optionsExcluded) */
     func buttonWasTapped() {
         actionHandler?()
-        //        if(!optionsExcludedForHighlight.contains(self.optionTitle)) {
-        //            if(self.tintColor!.isEqual(activeOptionColor)) {
-        //                self.tintColor = inactiveOptionColor
-        //            } else {
-        //                self.tintColor = activeOptionColor
-        //            }
-        //        }
+                if(!optionsExcludedForHighlight.contains(self.optionTitle)) {
+                    if(self.tintColor!.isEqual(activeOptionColor)) {
+                        self.tintColor = inactiveOptionColor
+                    } else {
+                        self.tintColor = activeOptionColor
+                    }
+                }
     }
     
     /* Change color of option depending if current text contains applied option */
