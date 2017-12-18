@@ -63,21 +63,21 @@ window.addEventListener("keydown", function(key) {
                           RE.getCurrentStyle();
                           RE.backuprange();
 
-                        /* Uses <p> tags on line breaks
+                        /* Ensure <p> tags are used on line breaks
                          (except when selected text contains a list) */
                         if(key.keyCode == '13' &&
                              !document.queryCommandState("insertOrderedList") &&
                              !document.queryCommandState("insertUnorderedList")) {
                         
-                            key.preventDefault();
-                            document.execCommand('formatBlock', false, 'p');
-                            RE.insertHTML("<br>");
+                            /* When p tags not used yet, format current block with p
+                             tags, so that each line break will use p tags later on */
+                            if(document.queryCommandValue("formatBlock") != 'p') {
+                                document.execCommand('formatBlock', false, 'p');
+                                key.preventDefault();
+                                RE.insertHTML("<br>");
+                            }
                         } 
 });
-
-RE.getDocument = function() {
-    return "Hi" + document.getSelection();
-}
 
 //looks specifically for a Range selection and not a Caret selection
 RE.rangeSelectionExists = function() {
