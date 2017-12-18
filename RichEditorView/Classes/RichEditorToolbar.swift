@@ -34,6 +34,7 @@ import UIKit
     
     public convenience init(image: UIImage? = nil, imgTitle: String = "", handler: (() -> Void)? = nil) {
         self.init(image: image, style: .plain, target: nil, action: nil)
+        self.width = 33
         target = self
         action = #selector(RichBarButtonItem.buttonWasTapped)
         actionHandler = handler
@@ -42,6 +43,7 @@ import UIKit
     
     public convenience init(title: String = "", handler: (() -> Void)? = nil) {
         self.init(title: title, style: .plain, target: nil, action: nil)
+        self.width = 33
         target = self
         action = #selector(RichBarButtonItem.buttonWasTapped)
         actionHandler = handler
@@ -73,6 +75,11 @@ import UIKit
 /// RichEditorToolbar is UIView that contains the toolbar for actions that can be performed on a RichEditorView
 @objcMembers open class RichEditorToolbar: UIView {
 
+    /* Toolbar and toolbar icon's measurements */
+    let toolbarHeight: CGFloat = 44
+    let defaultIconWidth: CGFloat = 33
+    let barButtonItemMargin: CGFloat = 11
+    
     /// The delegate to receive events that cannot be automatically completed
     open weak var delegate: RichEditorToolbarDelegate?
     
@@ -184,8 +191,6 @@ import UIKit
         }
         toolbar.items = buttons
         
-        let defaultIconWidth: CGFloat = 22
-        let barButtonItemMargin: CGFloat = 11
         let width: CGFloat = buttons.reduce(0) {sofar, new in
             if let view = new.value(forKey: "view") as? UIView {
                 return sofar + view.frame.size.width + barButtonItemMargin
@@ -199,7 +204,7 @@ import UIKit
         } else {
             toolbar.frame.size.width = width
         }
-        toolbar.frame.size.height = 44
+        toolbar.frame.size.height = toolbarHeight
         toolbarScroll.contentSize.width = width
     }
     
@@ -218,20 +223,16 @@ import UIKit
             
             if let image = option.image {
                 let button = RichBarButtonItem(image: image, imgTitle: title, handler: handler)
-                button.tintColor = UIColor.darkGray
                 button.updateColor(applied: isButtonApplied)
                 buttons.append(button)
             } else {
                 let button = RichBarButtonItem(title: title, handler: handler)
-                button.tintColor = UIColor.darkGray
                 button.updateColor(applied: isButtonApplied)
                 buttons.append(button)
             }
         }
         toolbar.items = buttons
         
-        let defaultIconWidth: CGFloat = 22
-        let barButtonItemMargin: CGFloat = 11
         let width: CGFloat = buttons.reduce(0) {sofar, new in
             if let view = new.value(forKey: "view") as? UIView {
                 return sofar + view.frame.size.width + barButtonItemMargin
@@ -245,7 +246,7 @@ import UIKit
         } else {
             toolbar.frame.size.width = width
         }
-        toolbar.frame.size.height = 44
+        toolbar.frame.size.height = toolbarHeight
         toolbarScroll.contentSize.width = width
     }
     
@@ -284,7 +285,7 @@ import UIKit
         } else {
             secondaryToolbar.frame.size.width = width
         }
-        secondaryToolbar.frame.size.height = 44
+        secondaryToolbar.frame.size.height = toolbarHeight
         secondaryToolbar.frame.origin.y = 44
     }
 }

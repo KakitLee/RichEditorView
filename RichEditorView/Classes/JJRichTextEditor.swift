@@ -45,7 +45,7 @@ open class JJRichTextEditor: UIView {
                 self.editorView.endEditing(true)
             }
             
-            var options: [RichEditorOption] = RichEditorDefaultOption.swarmToolbar
+            var options: [RichEditorOption] = self.toolbar.options
             options.insert(hideKeyboardOption, at: 0)
             toolbar.options = options
         }
