@@ -503,9 +503,9 @@ RE.getRelativeCaretYPosition = function() {
 };
 
 RE.getSelectionCharOffsetsWithin = function() {
-    let start = 0, end = 0;
-    let sel, range, priorRange;
-    let element = document.getElementById("main");
+    var start = 0, end = 0;
+    var sel, range, priorRange;
+    var element = document.getElementById("main");
     if (typeof window.getSelection != "undefined") {
         range = window.getSelection().getRangeAt(0);
         priorRange = range.cloneRange();
@@ -522,6 +522,6 @@ RE.getSelectionCharOffsetsWithin = function() {
         start = priorRange.text.length;
         end = start + range.text.length;
     }
-    let string = start + ":" + end;
+    var string = start + ":" + end;
     return string;
 };
