@@ -17,5 +17,5 @@ Pod::Spec.new do |s|
     ]
 
   s.dependency 'IGColorPicker'
-  s.dependency 'SCLAlertView', '0.7.0'
+  s.dependency 'SCLAlertView', '0.8.0'
 end

@@ -1,6 +1,6 @@
 {
   "name": "RichEditorView",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "summary": "Rich Text Editor for iOS written in Swift -- Base on RichEditorView",
   "homepage": "https://github.com/KakitLee/RichEditorView",
   "license": "BSD 3-clause",
@@ -9,7 +9,7 @@
   },
   "source": {
     "git": "https://github.com/KakitLee/RichEditorView.git",
-    "branch": "develop"
+    "branch": "highlight-used-toolbar-options"
   },
   "platforms": {
     "ios": "8.0"
@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "IGColorPicker": [
-      "0.2.1"
+
     ],
     "SCLAlertView": [
       "0.7.0"
